@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thc.winterdemo.mapper.SpostMapper">
+
+    <!---->
+
+    <select id="detail" parameterType="hashMap" resultType="com.thc.winterdemo.dto.SpostDto$DetailResDto">
+        SELECT spost.id
+             , spost.deleted
+             , spost.created_at as createdAt
+             , spost.modified_at as modifiedAt
+             , spost.title
+             , spost.content
+             , spost.user_id as userId
+
+        FROM spost
+        WHERE spost.id = #{id}
+
+    </select>
+    <select id="list" parameterType="hashMap" resultType="com.thc.winterdemo.dto.SpostDto$DetailResDto">
+        SELECT spost.id
+        FROM spost
+        WHERE spost.id is not NULL
+        <if test = "deleted != null">AND spost.deleted = 0</if>
+        <if test = "title != null and title !=''">AND spost.title LIKE CONCAT('%', #{title}, '%')</if>
+    </select>
+
+</mapper>
