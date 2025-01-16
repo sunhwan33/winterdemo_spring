@@ -7,15 +7,107 @@
 </head>
 <body>
 인덱스 입니다!
+<button onclick="access_token_expired()">test access_token expired</button>
+<button id="btn_logout" onclick="user_logout()">로그아웃!</button>
+<button id="btn_login" onclick="location.href = '/user/login'">로그인 페이지 이동</button>
 
-<button onclick="user_logout()">로그아웃!</button>
-
+<!-- CUSTOM JS!!! -->
+<script src="/resources/common/js/default.js"></script>
+<script src="/resources/common/js/user.js"></script>
 <script>
-    let userId = localStorage.getItem("userId");
-    alert(userId);
+    alert("refreshToken : " + localStorage.getItem("refreshToken"))
+    alert("AT : " + localStorage.getItem("Authorization"))
 
+    let refreshToken = localStorage.getItem("refreshToken");
+    //alert(userId);
+    if(isNull(refreshToken)){
+        //로그인 페이지 보여주기
+        $("#btn_logout").remove();
+    } else {
+        //로그아웃 보여주면 됨
+        $("#btn_login").remove();
+    }
+    function access_token_expired(){
+        localStorage.setItem("Authorization", "112233")
+    }
+    function customAjax(_param){
+        let accessToken = localStorage.getItem("Authorization");
+
+        $.ajax({
+            url: _param["url"],
+            type: _param["type"],
+            contentType : 'application/json; charset=utf-8',
+            data: _param["data"],
+            beforeSend: function (xhr){
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.setRequestHeader("Authorization", accessToken);
+            },
+            cache: false,
+            success: (obj_data, status, xhr)=>{
+                _param["success"](obj_data);
+
+                // location.replace("/index");
+            },
+            error: (obj_data, status, xhr)=>{
+                console.log("error : "+JSON.stringify(obj_data));
+                if(obj_data.status === 401){
+                    //unauthorization error (access token 정상 아닐때)
+                    if(!_param["isSecondTry"]){
+                        _param["isSecondTry"] = true;
+                        alert("첫번째 시도 종료");
+                        access_token(_param);
+                    }
+                }
+                _param["error"](obj_data);
+            }
+        });
+    }
     function user_logout(){
-        localStorage.clear();
+        let _param = {};
+        _param["isSecondTry"] = false;
+        _param["url"] = "/api/user/logout";
+        _param["type"] = "POST";
+        _param["success"] = function(obj_success){
+            alert("성공!");
+            localStorage.clear();
+            location.reload();
+        };
+        _param["error"] = function(obj_error){
+            alert("실패!");
+            // localStorage.clear();
+            location.reload();
+        }
+        customAjax(_param);
+    }
+    function access_token(_param){
+        //리프레쉬토큰에 대해 유효성 검사 필요
+        let refreshToken = localStorage.getItem("refreshToken");
+        alert("access_token 함수 접근 + "+refreshToken);
+        if ( refreshToken === null || refreshToken ==="undefined" || refreshToken ==="") {
+            alert("리프레쉬 토큰이 없습니다. 로그인 페이지로 이동합니다ㅣㅣㅣ");
+            location.replace("/user/login");
+            return false;
+        }
+        $.ajax({
+            url: "/api/auth/accessToken",
+            type: "POST",
+            contentType : 'application/json; charset=utf-8',
+            beforeSend : function (xhr){
+                xhr.setRequestHeader("Content-type", "application/json");
+                xhr.setRequestHeader("RefreshToken", refreshToken);
+            },
+            cache: false,
+            success: (obj_data, status, xhr)=>{
+                alert("access_token success : "+JSON.stringify(obj_data));
+                localStorage.setItem("Authorization", obj_data);
+                customAjax(_param);
+            },
+            error: (obj_data, status, xhr)=>{
+                alert("리프레쉬 토큰이 없습니다. 로그인 페이지로 이동합니다!!");
+                location.replace("/user/login");
+                return false;
+            }
+        });
     }
 </script>
 </body>
