@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
 LOGIN
 
 <div id="div_id" class="div_abcde">
-    사용자 로그인
+  사용자 로그인
 </div>
 
 *아이디
@@ -17,83 +17,98 @@ LOGIN
 *비번
 <input type="password" class="input_required" id="create_user_password" placeholder="비밀번호를 입력해주세요!"/>
 
-*리프레시 토큰:
-<div id="font_refresh_token"/>-</div>
-*액세스 토큰:
-<div id="font_access_token"/>-</div>
+*리프레시 토큰 :
+<div id="font_refresh_token">-</div>
+*엑세스 토큰 :
+<div id="font_access_token">-</div>
 
 <button onclick="login_user()">
-    로그인
+  로그인
 </button>
 <button onclick="access_token()">
-    엑세스 토큰 만들기
+  엑세스 토큰 만들기
 </button>
 
 <script>
-    function login_user(){
-        let input_required = $(".input_required");
-        for(let each of input_required){
-            let tempValue = $.trim($(each).val());
-            if(tempValue == null || tempValue === ""){
-                alert($(each).attr("placeholder"));
-                $(each).focus();
-                return false;
-            }
+  function login_user(){
+    let input_required = $(".input_required");
+    for(let each of input_required){
+      let tempValue = $.trim($(each).val());
+      if(tempValue == null || tempValue === ""){
+        alert($(each).attr("placeholder"));
+        $(each).focus();
+        return false;
+      }
+    }
+    $.ajax({
+      url: "/api/login",
+      type: "POST",
+      contentType : 'application/json; charset=utf-8',
+      data: JSON.stringify({
+        username : $("#create_user_username").val()
+        ,password : $("#create_user_password").val()
+      }),
+      cache: false,
+      success: (obj_data, status, xhr)=>{
+        let refreshToken = xhr.getResponseHeader("RefreshToken");
+        if(refreshToken == null){
+          alert("로그인 실패!");
+        } else {
+          alert("로그인 성공!");
+          localStorage.setItem("refreshToken", refreshToken);
+          $("#font_refresh_token").text(refreshToken);
         }
-        $.ajax({
-            url: "/api/user/login",
-            type: "POST",
-            contentType : 'application/json; charset=utf-8',
-            data: JSON.stringify({
-                username : $("#create_user_username").val()
-                ,password : $("#create_user_password").val()
-            }),
-            cache: false,
-            success: (obj_data, status, xhr)=>{
-                alert(JSON.stringify(obj_data));
-                localStorage.setItem("refreshToken", obj_data["refreshToken"]);
-                alert(obj_data["refreshToken"]);
-                $("#font_refresh_token").text(obj_data["refreshToken"]);
+        /*alert(JSON.stringify(obj_data));
+        alert(JSON.stringify(status));
+        alert(JSON.stringify(xhr));*/
+        //localStorage.setItem("userId", obj_data["id"]);
+        //localStorage.setItem("refreshToken", obj_data["refreshToken"]);
+        //$("#font_refresh_token").text(obj_data["refreshToken"]);
+        //location.replace("/index");
+      },
+      error: (obj_data, status, xhr)=>{
+        alert("error!!");
+        alert(JSON.stringify(obj_data));
+      }
+    });
+  }
+  function access_token(){
 
-                // location.replace("/index");
-            },
-            error: (obj_data, status, xhr)=>{
-                alert("error!!");
-                alert(JSON.stringify(obj_data));
-            }
-        });
+    let refreshToken = localStorage.getItem("refreshToken");
+    if(refreshToken === null || refreshToken + "" === "undefined" || refreshToken + "" === ""){
+      alert("리프레쉬 토큰이 없습니다.");
+      return false;
     }
 
-    function access_token(){
-        //리프레쉬토큰에 대해 유효성 검사 필요
-        let refreshToken = localStorage.getItem("refreshToken");
+    $.ajax({
+      url: "/api/auth/accessToken",
+      type: "POST",
+      contentType : 'application/json; charset=utf-8',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.setRequestHeader("RefreshToken", refreshToken);
+      },
+      cache: false,
+      success: (obj_data, status, xhr)=>{
+        let accessToken = xhr.getResponseHeader("Authorization");
+        //alert(accessToken);
+        $("#font_access_token").text(accessToken);
+        localStorage.setItem("accessToken", accessToken);
+        /*
+        alert(JSON.stringify(obj_data));
+        localStorage.setItem("Authorization", obj_data);
+        $("#font_access_token").text(obj_data);
+        */
 
-        if ( refreshToken == null || refreshToken ==="undefined" || refreshToken ==="") {
-            alert("리프레쉬 토큰이 없습니다");
-            return false;
-        }
-        $.ajax({
-            url: "/api/auth/accessToken",
-            type: "POST",
-            contentType : 'application/json; charset=utf-8',
-            beforeSend : function (xhr){
-                xhr.setRequestHeader("Content-type", "application/json");
-                xhr.setRequestHeader("RefreshToken", refreshToken);
-            },
-            cache: false,
-            success: (obj_data, status, xhr)=>{
-                alert(JSON.stringify(obj_data));
-                localStorage.setItem("Authorization", obj_data);
-                $("#font_access_token").text(obj_data);
-            },
-            error: (obj_data, status, xhr)=>{
-                alert("error!!");
-                alert(JSON.stringify(obj_data));
-            }
-        });
-    }
-    /*
-    */
+      },
+      error: (obj_data, status, xhr)=>{
+        alert("error!!");
+        alert(JSON.stringify(obj_data));
+      }
+    });
+  }
+  /*
+  */
 </script>
 
 

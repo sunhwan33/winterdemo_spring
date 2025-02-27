@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+</head>
+<body>
+<h1>공지사항 신규 입력</h1>
+
+<div>
+  제목: <input type="text" id="create_spost_title" />
+</div>
+<div>
+  내용: <input type="text" id="create_spost_content" />
+</div>
+<div>
+  <button onclick="create_spost()">저장</button>
+</div>
+
+<script>
+  function create_spost() {
+    let data = {
+      title: $("#create_spost_title").val(),
+      content: $("#create_spost_content").val(),
+      //userId : localStorage.getItem("userId"),
+      //deleted: false // 삭제 여부 기본값
+    };
+
+    $.ajax({
+      url: "/api/spost",
+      type: "POST",
+      contentType: "application/json", // JSON 요청으로 설정
+      data: JSON.stringify(data), // JSON으로 데이터 직렬화
+      success: (response, status, xhr) => {
+        alert("성공! 응답 데이터: " + JSON.stringify(response));
+        console.log("응답 객체:", response);
+      },
+      error: (xhr, status, error) => {
+        alert("에러 발생! " + xhr.responseText);
+        console.error("상태 코드:", status, "에러 메시지:", error, "응답:", xhr.responseText);
+      }
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <head th:replace="~{@{includes/admin/head}}"></head>
+</head>
+<body>
+
+<script id="list_info_postimg" type="text/x-handlebars-template">
+    {{#resultData_postimg}}
+    <div class="col-sm-3" id="div_post_imgs_{{order}}">
+        <img class="img-responsive" id="img_post_img_{{order}}" alt="" src="{{src}}" />
+        <div onclick="listener_delete_img('{{order}}')">삭제</div>
+    </div>
+    {{/resultData_postimg}}
+</script>
+<script type="text/javascript">
+    var list_info_postimg = $("#list_info_postimg").html();
+    var list_info_postimg_template = Handlebars.compile(list_info_postimg);
+</script>
+
+<div id="wrapper">
+    <body th:replace="~{@{includes/admin/nav}}"></body>
+    <script>
+        $(".sidemenu_li_post").addClass("active");
+    </script>
+    <div id="upage-wrapper" class="gray-bg dashbard-1">
+        <body th:replace="~{@{includes/admin/navbar_top}}"></body>
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>사용자 게시글 신규</h2>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/admin">Home</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/notice/admin_list">커뮤니티 관리</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/spost/admin_list">사용자 게시글 목록</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <strong>게시글 신규</strong>
+                    </li>
+                </ol>
+            </div>
+            <div class="col-lg-2">
+            </div>
+        </div>
+
+        <div class="animated fadeInRight" style="padding-top:12.5px;padding-bottom:0px;">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox-title">
+                        <h5>신규 등록</h5>
+                    </div>
+                    <div class="ibox-content" style="padding-bottom:0.1px;">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">*제목</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="input_required form-control m-b" id="create_spost_title" keyword="title" placeholder="제목을 입력해주세요!" errormsg="필수값입니다."/>
+                            </div>
+                            <label class="col-sm-6"></label>
+
+                            <label class="col-sm-2 col-form-label">내용</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control m-b" id="create_spost_content" keyword="content" placeholder="내용을 입력해주세요!" errormsg="필수값입니다."></textarea>
+                            </div>
+
+                            <label class="col-sm-2 col-form-label">
+                                대표사진
+                                <input class="hide" type="file" id="input_file" onchange="readInputFile(this)"/>
+                                <button class="btn btn-sm btn-default" onclick='$("#input_file").trigger("click")'>불러오기</button>
+                            </label>
+                            <div class="col-sm-10 row" id="div_post_imgs">
+                            </div>
+
+                        </div>
+                        <div class="m-b" style="text-align: right;">
+                            <button class="btn btn-primary btn-sm" onclick="create_spost()">등록하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $( document ).ready(function() {
+                console.log( "ready!" );
+            });
+            function create_spost(){
+                let userId = localStorage.getItem("userId");
+                if(isNull(userId)){
+                    alert("로그인을 먼저 해주세요!!")
+                    return false;
+                }
+                // if(!listenerBeforeCreate()){
+                //     return false;
+                // }
+
+                let formData = new FormData();
+                for(let i=0;i<tempFiles.length;i++){
+                    if(tempExists[i]){
+                        formData.append('imgfile', tempFiles[i]);
+                    }
+                }
+                let _param = {
+                    'title' : $("#create_spost_title").val(),
+                    'content' : $("#create_spost_content").val()
+                };
+                formData.append('param', new Blob([JSON.stringify(_param)], {
+                    type: "application/json; charset=utf-8"
+                }));
+
+                $.ajax({
+                    url: "/api/spost",
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    data: formData,
+                    cache: false,
+                    processData : false,
+                    success: (obj_data, status, xhr)=>{
+                        alert(JSON.stringify(obj_data));
+                    },
+                    error: (obj_data, status, xhr)=>{
+                        alert("error!!");
+                        alert(JSON.stringify(obj_data));
+                    }
+                });
+            }
+        </script>
+        <body th:replace="~{@{includes/admin/footer}}"></body>
+    </div>
+    <body th:replace="~{@{includes/admin/right_sidebar}}"></body>
+</div>
+<body th:replace="~{@{includes/admin/bottom}}"></body>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thc.winterdemo.mapper.PermissionMapper">
+
+    <!---->
+
+    <select id="detail" parameterType="hashMap" resultType="com.thc.winterdemo.dto.PermissionDto$DetailResDto">
+        SELECT permission.id
+             , permission.deleted
+             , permission.created_at as createdAt
+             , permission.modified_at as modifiedAt
+             , permission.title
+             , permission.content
+             , permission.user_id as userId
+
+        FROM permission
+        WHERE permission.id = #{id}
+
+    </select>
+    <select id="list" parameterType="hashMap" resultType="com.thc.winterdemo.dto.PermissionDto$DetailResDto">
+        SELECT permission.id
+        FROM permission
+        WHERE permission.id is not NULL
+        <if test = "deleted != null">AND permission.deleted = 0</if>
+        <if test = "sdate != null and sdate !=''">AND permission.created_at >= CONCAT(#{sdate}, ' 00:00:00.000000')</if>
+        <if test = "fdate != null and fdate !=''">AND CONCAT(#{fdate}, ' 23:59:59.999999') >= permission.created_at</if>
+        <if test = "title != null and title !=''">AND permission.title LIKE CONCAT('%', #{title}, '%')</if>
+    </select>
+
+</mapper>

@@ -8,19 +8,13 @@ import java.util.List;
 
 @Service
 public interface UserService {
-    UserDto.LoginResDto login(UserDto.LoginReqDto param);
-    DefaultDto.CreateResDto signup(UserDto.CreateReqDto param);
-    void logout(Long reqUserId);
-    /**/
-
     DefaultDto.CreateResDto create(UserDto.CreateReqDto param);
+    DefaultDto.CreateResDto signup(UserDto.CreateReqDto param);
+    /*UserDto.LoginResDto login(UserDto.LoginReqDto param);*/
+    void logout(Long reqUserId);
     void update(UserDto.UpdateReqDto param);
     void delete(Long id);
-    void deletes(DefaultDto.DeletesReqDto param);
-    UserDto.DetailResDto detail(Long id);
+    //void deletes(UserDto.DeletesReqDto param);
     List<UserDto.DetailResDto> list(UserDto.ListReqDto param);
-    DefaultDto.PagedListResDto pagedList(UserDto.PagedListReqDto param);
-    List<UserDto.DetailResDto> scrollList(UserDto.ScrollListReqDto param);
-
-
+    UserDto.DetailResDto detail(Long id);
 }

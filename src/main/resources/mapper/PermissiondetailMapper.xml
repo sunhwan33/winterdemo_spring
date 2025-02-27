@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thc.winterdemo.mapper.PermissionuserMapper">
+
+    <!---->
+
+    <select id="detail" parameterType="hashMap" resultType="com.thc.winterdemo.dto.PermissionuserDto$DetailResDto">
+        SELECT permissionuser.id
+             , permissionuser.deleted
+             , permissionuser.created_at as createdAt
+             , permissionuser.modified_at as modifiedAt
+             , permissionuser.permission_id as permissionId
+             , permissionuser.user_id as userId
+
+        FROM permissionuser
+        WHERE permissionuser.id = #{id}
+
+    </select>
+    <select id="list" parameterType="hashMap" resultType="com.thc.winterdemo.dto.PermissionuserDto$DetailResDto">
+        SELECT permissionuser.id
+        FROM permissionuser
+        WHERE permissionuser.id is not NULL
+        <if test = "deleted != null">AND permissionuser.deleted = 0</if>
+        <if test = "sdate != null and sdate !=''">AND permissionuser.created_at >= CONCAT(#{sdate}, ' 00:00:00.000000')</if>
+        <if test = "fdate != null and fdate !=''">AND CONCAT(#{fdate}, ' 23:59:59.999999') >= permissionuser.created_at</if>
+        <if test = "permissionId != null and title !=''">AND permissionuser.permissionId = #{title}</if>
+    </select>
+
+</mapper>

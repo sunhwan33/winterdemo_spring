@@ -19,8 +19,6 @@ public abstract class AuditingFields {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
     //
 
     @Column(nullable = false)

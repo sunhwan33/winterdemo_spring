@@ -1,61 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>signup</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 </head>
 <body>
-LOGIN
+<h1>회원가입</h1>
 
-<div id="div_id" class="div_abcde">
-    사용자 로그인
-</div>
 
 *아이디
 <input type="text" class="input_required" id="create_user_username" placeholder="아이디를 입력해주세요!"/>
 *비번
 <input type="password" class="input_required" id="create_user_password" placeholder="비밀번호를 입력해주세요!"/>
 
-<button onclick="signup_user()">
-    저장
-</button>
+<div>
+  이름: <input type="text" id="create_user_name" />
+</div>
+<div>
+  휴대폰번호: <input type="text" id="create_user_phone" />
+</div>
+<div>
+  <button onclick="signup_user()">저장</button>
+</div>
 
 <script>
-    function signup_user(){
-        // let input_required = $(".input_required");
-        // for(let each of input_required){
-        //     let tempValue = $.trim($(each).val());
-        //     if(tempValue == null || tempValue === ""){
-        //         alert($(each).attr("placeholder"));
-        //         $(each).focus();
-        //         return false;
-        //     }
-        // }
-        $.ajax({
-            url: "/api/user/signup",
-            type: "POST",
-            contentType : 'application/json; charset=utf-8',
-            data: JSON.stringify({
-                username : $("#create_user_username").val()
-                ,password : $("#create_user_password").val()
-            }),
-            cache: false,
-            success: (obj_data, status, xhr)=>{
-                alert(JSON.stringify(obj_data));
-                // localStorage.setItem("userId", obj_data["id"]);
-                // location.replace("/index");
-            },
-            error: (obj_data, status, xhr)=>{
-                alert("error!!");
-                alert(JSON.stringify(obj_data));
-            }
-        });
+  function signup_user() {
+    let input_required = $(".input_required");
+    for(let each of input_required){
+      let tempValue = $.trim($(each).val());
+      if(tempValue == null || tempValue === ""){
+        alert($(each).attr("placeholder"));
+        $(each).focus();
+        return false;
+      }
     }
-    /*
-    */
+    let data = {
+      username: $("#create_user_username").val(),
+      password: $("#create_user_password").val(),
+      name: $("#create_user_name").val(),
+      phone: $("#create_user_phone").val(),
+      //userId : localStorage.getItem("userId"),
+      //deleted: false // 삭제 여부 기본값
+    };
+
+    $.ajax({
+      url: "/api/user/signup",
+      type: "POST",
+      contentType: "application/json", // JSON 요청으로 설정
+      data: JSON.stringify(data), // JSON으로 데이터 직렬화
+
+      success: (response, status, xhr) => {
+        alert("성공! 응답 데이터: " + JSON.stringify(response));
+        console.log("응답 객체:", response);
+        location.replace("/user/login");
+      },
+      error: (xhr, status, error) => {
+        alert("에러 발생! " + xhr.responseText);
+        console.error("상태 코드:", status, "에러 메시지:", error, "응답:", xhr.responseText);
+      }
+    });
+  }
 </script>
-
-
 </body>
 </html>
